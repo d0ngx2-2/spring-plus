@@ -31,8 +31,8 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     """)
     Page<Todo> searchTodos(
             @Param("weather") String weather,
-            @Param("start") LocalDate start,
-            @Param("end") LocalDate end,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
             Pageable pageable
     );
 }

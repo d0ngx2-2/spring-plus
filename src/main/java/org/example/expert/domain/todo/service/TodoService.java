@@ -54,8 +54,8 @@ public class TodoService {
     public Page<TodoResponse> getTodos(int page,
                                        int size,
                                        String weather,
-                                       LocalDate start,
-                                       LocalDate end
+                                       LocalDateTime start,
+                                       LocalDateTime end
     ) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
