@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface TodoRepository extends JpaRepository<Todo, Long> {
@@ -18,4 +20,19 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
             "LEFT JOIN t.user " +
             "WHERE t.id = :todoId")
     Optional<Todo> findByIdWithUser(@Param("todoId") Long todoId);
+
+    @Query("""
+        SELECT t FROM Todo t
+        LEFT JOIN FETCH t.user
+        WHERE (:weather IS NULL OR t.weather = :weather)
+          AND (:start IS NULL OR t.modifiedAt >= :start)
+          AND (:end IS NULL OR t.modifiedAt <= :end)
+        ORDER BY t.modifiedAt DESC
+    """)
+    Page<Todo> searchTodos(
+            @Param("weather") String weather,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            Pageable pageable
+    );
 }
