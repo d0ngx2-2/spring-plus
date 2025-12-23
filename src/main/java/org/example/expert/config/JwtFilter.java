@@ -32,11 +32,11 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws IOException, ServletException {
 
+        //JWT 토큰 추출
         String bearerJwt = httpRequest.getHeader("Authorization");
 
         if (bearerJwt == null) {
-            // 토큰이 없는 경우 400을 반환합니다.
-            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "JWT 토큰이 필요합니다.");
+            chain.doFilter(httpRequest, httpResponse);
             return;
         }
 
@@ -55,12 +55,13 @@ public class JwtFilter extends OncePerRequestFilter {
             String email = claims.get("email", String.class);
             UserRole role =  UserRole.valueOf(claims.get("userRole", String.class));
 
-            List<GrantedAuthority> authorities =
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role));
+            // security가 이해하고 있는 형태로 변환
+            List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_" + role));
 
-            AuthUser authUser = new AuthUser(userId, email, role);
+            AuthUser authUser = new AuthUser(userId, nickName, email, role);
             Authentication authentication = new UsernamePasswordAuthenticationToken(authUser, null, authorities);
 
+            // 인증된 사용자 정보를 저장
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             chain.doFilter(httpRequest, httpResponse);
@@ -79,6 +80,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
+    // 실행하지 않는 경로 security 메서드 재정의 활용
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         return request.getRequestURI().startsWith("/auth");
