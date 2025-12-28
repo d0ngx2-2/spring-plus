@@ -22,7 +22,8 @@ public class SecurityConfig {
         httpSecurity.csrf(csrf -> csrf.disable())  // 세션사용하지 않기 때문에 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용하지 않음.
                 .authorizeHttpRequests(auth -> auth // 인가 정의 시작
-                        .requestMatchers("/auth/**").permitAll() // 해당 경로는 인증 없이 허용
+                        .requestMatchers("/auth/**").permitAll()// 해당 경로는 인증 없이 허용
+                        .requestMatchers("/health").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN") // 해당경로는 ADMIN 권한이 있는 자만 허용
                         .anyRequest().authenticated() // 그 외는 모두 인증 해야함.
                 )

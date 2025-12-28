@@ -83,6 +83,7 @@ public class JwtFilter extends OncePerRequestFilter {
     // 실행하지 않는 경로 security 메서드 재정의 활용
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/auth");
+        String uri = request.getRequestURI();
+        return uri.equals("/health") || uri.startsWith("/auth");
     }
 }
