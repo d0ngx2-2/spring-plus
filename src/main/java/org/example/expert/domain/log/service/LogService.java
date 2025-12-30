@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+// 매니저 등록 시 실패해도 로그 등록하기! (REQUIRES_NEW) 활용!
 public class LogService {
 
     private final LogRepository logRepository;

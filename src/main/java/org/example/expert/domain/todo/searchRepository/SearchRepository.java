@@ -14,5 +14,5 @@ public interface SearchRepository {
             LocalDateTime start,
             LocalDateTime end,
             Pageable pageable
-                                          );
+    );
 }

@@ -1,3 +1,4 @@
+
 # API 명세서
 
 ## USER 개요
@@ -163,7 +164,6 @@
 | message   | String | 에러 상세 메시지   |
 | timestamp | String | 에러 발생 시각    |
 | status    | Int    | HTTP 상태 코드  |
-
 ---
 ## TODO 개요
 - 모든 API는 JWT 인증 필요
