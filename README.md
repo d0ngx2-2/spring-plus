@@ -742,13 +742,104 @@ OK
 | 401  | 비밀번호 불일치    |
 | 404  | 가입되지 않은 유저  |
 
+---
+
+# ERD 설계
+![ERD.png](picture/ERD.png)
+
+---
+
+# AWS 설정
+
+>본 프로젝트는 AWS EC2에 배포된 Spring Boot 애플리케이션과
+Amazon RDS(MySQL)를 연동한 구조로 구성되어 있습니다.
+애플리케이션과 데이터베이스는 동일한 VPC 내에서 보안 그룹을 통해 통신합니다.
+
+- **EC2**
+
+- **RDS** (MySQL)
+
+- **Security** Group
+
+- **Elastic IP**
+
+- **Health Check API**
+
+---
+
+## 인스턴스 설정
+![인스턴스 설정.png](picture/%EC%9D%B8%EC%8A%A4%ED%84%B4%EC%8A%A4%20%EC%84%A4%EC%A0%95.png)
+
+![인스턴스 설정2.png](picture/%EC%9D%B8%EC%8A%A4%ED%84%B4%EC%8A%A4%20%EC%84%A4%EC%A0%952.png)
+
+![인스턴스 설정3.png](picture/%EC%9D%B8%EC%8A%A4%ED%84%B4%EC%8A%A4%20%EC%84%A4%EC%A0%953.png)
+
+>Spring Boot 애플리케이션을 실행하기 위해 8080포트 개방
+
+---
+
+## RDS 설정
+
+![RDS 설정.png](picture/RDS%20%EC%84%A4%EC%A0%95.png)
+
+![RDS 보안그룹 설정.png](picture/RDS%20%EB%B3%B4%EC%95%88%EA%B7%B8%EB%A3%B9%20%EC%84%A4%EC%A0%95.png)
+
+> RDS는 퍼블릭 접근을 허용하지 않고,
+  EC2 보안 그룹을 통해서만 접근 가능하도록 설정했습니다.
+
+---
+
+## health 정상 작동 확인
+
+![health확인.png](picture/health%ED%99%95%EC%9D%B8.png)
+
+>인스턴스 러닝상태일 때만 정상 작동하는 모습
+
+---
+
+# 대용량 트래픽 처리
+
+## 일반 닉네임을 통해 검색하였을 경우(초기상황)
+![성능 개선 전.png](picture/%EC%84%B1%EB%8A%A5%20%EA%B0%9C%EC%84%A0%20%EC%A0%84.png)
+
+> ```sqlEXPLAIN SELECT * FROM users WHERE nick_name = 'nick_xxxxx';```
+>
+> 기존 아무 설정없이 SQL문을 통해 검색했을 경우
+
+ | 항목   | 값          |
+| ---- | ---------- |
+| type | ALL        |
+| key  | NULL       |
+| rows | ~5,000,000 |
 
 
+---
 
+## 닉네임에 인덱스를 추가해주었을 경우
 
+![성능 개선 후.png](picture/%EC%84%B1%EB%8A%A5%20%EA%B0%9C%EC%84%A0%20%ED%9B%84.png)
 
+>```sql CREATE INDEX idx_users_nick_name ON users (nick_name);```
+> 
+> 인덱스 설정 이후 많이 개선된 모습
 
+| 항목   | 인덱스 ❌     | 인덱스 ⭕               |
+| ---- | --------- | ------------------- |
+| type | ALL       | ref                 |
+| key  | NULL      | idx_users_nick_name |
+| rows | 5,000,000 | 1                   |
 
+---
 
+### 닉네임 검색 성능 개선
 
+- 서비스 코드 변경 없음
+- SQL 변경 없음
+- nick_name 컬럼에 인덱스 추가
 
+CREATE INDEX idx_users_nick_name ON users (nick_name);
+
+| 구분 | rows | type |
+|----|----|----|
+| 인덱스 전 | 5,000,000 | ALL |
+| 인덱스 후 | 1 | ref |
